@@ -3,7 +3,7 @@ var dbManage = require('./dataManage');
 
 var shceduleList = {
     tigger: function () {
-        schedule.scheduleJob('*/1 * * * *', function () {
+        schedule.scheduleJob('*/10 * * * *', function () {
             dbManage.init();
         });
     }
