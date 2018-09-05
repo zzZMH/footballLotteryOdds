@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>赔率曲线</title>
+    <style type="text/css">
+        body {
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .linesCont {
+            margin: 0 auto;
+            width: 60%;
+            height: 500px;
+        }
+
+        .lineChart {
+            width: 100%;
+            height: 300px;
+        }
+
+        .dvdHr {
+            margin: 20px 0;
+        }
+    </style>
+    <script type="text/javascript" src="javascripts/jquery.min.js"></script>
+    <script type="text/javascript" src="javascripts/echarts.js"></script>
+</head>
+<body>
+    <h1>24小时赔率监测曲线</h1>
+    <div class="linesCont"> </div>
+</body>
+</html>
+<script type="text/javascript">
+    $.ajax({
+        url: "http://localhost:8080/queryOddsTitleData",
+        type: "post",
+        dataType: "json",
+        success: function (result){
+            if(result){
+                var data = result.data;
+                if(data && data.length > 0){
+                    for(var i = 0;i < data.length;i++){
+                        var curHtml = $(".linesCont").html();
+                        curHtml += "<div class='lineTitle'>"+data[i].gameNo+" "+data[i].teamZ+" vs "+data[i].teamK+" (主让"+data[i].diffBall+"球)"+"</div>"+
+                        "<div id='"+data[i].dataDate+" "+data[i].gameNo+"' class='lineChart'></div>"+
+                        "<hr class='dvdHr'/>";
+                        $(".linesCont").html(curHtml);
+                        getLineChartData(data[i]);
+                    }
+                }
+            }
+        }
+    });
+
+    function getLineChartData(param){
+        $.ajax({
+            url: "http://localhost:8080/queryOddsChartData",
+            type: "post",
+            dataType: "json",
+            data: {
+              dataDate: param.dataDate,
+              gameNo: param.gameNo
+            },
+            success: function (result){
+                if(result){
+                    var data = result.data;
+                    if(data && data.length> 0){
+                        var contId = param.dataDate + " " + param.gameNo;
+                        var lineChart = echarts.init(document.getElementById(contId));
+                        var lineOption = {
+                            tooltip: {
+                                trigger: 'axis'
+                            },
+                            legend: {
+                                top: '2%',
+                                data:['胜','平','负','让胜','让平','让负']
+                            },
+                            grid: {
+                                top: '11%',
+                                left: '1%',
+                                right: '3.5%',
+                                bottom: '1%',
+                                containLabel: true
+                            },
+                            xAxis: {
+                                type: 'category',
+                                boundaryGap: false,
+                                splitLine: {
+                                    show: false
+                                }
+                            },
+                            yAxis: {
+                                type: 'value',
+                                scale: true,
+                                splitLine: {
+                                    show: false
+                                }
+                            },
+                            series: [{
+                                name:'胜',
+                                type:'line',
+                                smooth: true
+                            },{
+                                name:'平',
+                                type:'line',
+                                smooth: true
+                            },{
+                                name:'负',
+                                type:'line',
+                                smooth: true
+                            },{
+                                name:'让胜',
+                                type:'line',
+                                smooth: true
+                            },{
+                                name:'让平',
+                                type:'line',
+                                smooth: true
+                            },{
+                                name:'让负',
+                                type:'line',
+                                smooth: true
+                            }]
+                        };
+                        var xArr = [];
+                        var dataSArr = [];
+                        var dataPArr = [];
+                        var dataFArr = [];
+                        var dataRSArr = [];
+                        var dataRPArr = [];
+                        var dataRFArr = [];
+                        for(var j = 0;j < data.length;j++){
+                            xArr.push(data[j].createTime);
+                            dataSArr.push(data[j].s);
+                            dataPArr.push(data[j].p);
+                            dataFArr.push(data[j].f);
+                            dataRSArr.push(data[j].rs);
+                            dataRPArr.push(data[j].rp);
+                            dataRFArr.push(data[j].rf);
+                        }
+                        lineOption.xAxis.data = xArr;
+                        lineOption.series[0].data = dataSArr;
+                        lineOption.series[1].data = dataPArr;
+                        lineOption.series[2].data = dataFArr;
+                        lineOption.series[3].data = dataRSArr;
+                        lineOption.series[4].data = dataRPArr;
+                        lineOption.series[5].data = dataRFArr;
+                        lineChart.setOption(lineOption);
+                    }
+                }
+            }
+        });
+    }
+</script>

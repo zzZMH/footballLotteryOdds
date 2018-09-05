@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>比赛数据</title>
+    <style type="text/css">
+        .cont {
+            margin: 0 auto;
+            width: 100%;
+            height: auto;
+        }
+    </style>
+    <script type="text/javascript" src="javascripts/jquery.min.js"></script>
+</head>
+<body>
+<div class="cont"></div>
+</body>
+</html>
+<script type="text/javascript">
+    (function () {
+        $.ajax({
+            url: "http://localhost:8080/lotteryOdd",
+            type: "get",
+            dataType: "json",
+            success: function (result){
+                $(".cont").html(result.data);
+            }
+        });
+    }());
+</script>

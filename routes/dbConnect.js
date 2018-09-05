@@ -1,5 +1,5 @@
 var mysql = require('mysql');
-var dbConfig = require('./dbconfig');
+var dbConfig = require('./dbConfig');
 
 var dbConn = {
     query: function (sql, params, callback) {
